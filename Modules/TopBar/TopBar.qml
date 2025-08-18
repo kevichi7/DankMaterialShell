@@ -298,6 +298,8 @@ PanelWindow {
                             return true
                         case "clipboard":
                             return true
+                        case "translator":
+                            return true
                         case "cpuUsage":
                             return DgopService.dgopAvailable
                         case "memUsage":
@@ -343,6 +345,8 @@ PanelWindow {
                             return privacyIndicatorComponent
                         case "clipboard":
                             return clipboardComponent
+                        case "translator":
+                            return translatorComponent
                         case "cpuUsage":
                             return cpuUsageComponent
                         case "memUsage":
@@ -597,6 +601,58 @@ PanelWindow {
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     clipboardHistoryModalPopup.toggle()
+                                }
+                            }
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: Theme.shortDuration
+                                    easing.type: Theme.standardEasing
+                                }
+                            }
+                        }
+                    }
+
+                    Component {
+                        id: translatorComponent
+
+                        Rectangle {
+                            width: 40
+                            height: 30
+                            radius: Theme.cornerRadius
+                            color: {
+                                const baseColor = translatorArea.containsMouse ? Theme.primaryHover : Theme.secondaryHover
+                                return Qt.rgba(baseColor.r, baseColor.g, baseColor.b,
+                                               baseColor.a * Theme.widgetTransparency)
+                            }
+
+                            DankIcon {
+                                anchors.centerIn: parent
+                                name: "translate"
+                                size: Theme.iconSize - 6
+                                color: Theme.surfaceText
+                            }
+
+                            MouseArea {
+                                id: translatorArea
+
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    // Open translator popout positioned under this widget
+                                    translatorPopoutLoader.active = true
+                                    if (translatorPopoutLoader.item && translatorPopoutLoader.item.setTriggerPosition) {
+                                        var globalPos = mapToGlobal(0, 0)
+                                        var currentScreen = root.screen || Screen
+                                        var screenX = currentScreen.x || 0
+                                        var relativeX = globalPos.x - screenX
+                                        translatorPopoutLoader.item.setTriggerPosition(relativeX,
+                                            Theme.barHeight + Theme.spacingXS,
+                                            width, (parent && parent.parent === leftSection) ? "left" : (parent && parent.parent === rightSection) ? "right" : "center",
+                                            currentScreen)
+                                        translatorPopoutLoader.item.translatorVisible = !translatorPopoutLoader.item.translatorVisible
+                                    }
                                 }
                             }
 

@@ -130,6 +130,26 @@ Singleton {
         }
     }
 
+    readonly property var availableMatugenSchemes: [
+        ({ "value": "scheme-tonal-spot", "label": "Tonal Spot", "description": "Balanced palette with focused accents (default)." }),
+        ({ "value": "scheme-content", "label": "Content", "description": "Derives colors that closely match the underlying image." }),
+        ({ "value": "scheme-expressive", "label": "Expressive", "description": "Vibrant palette with playful saturation." }),
+        ({ "value": "scheme-fidelity", "label": "Fidelity", "description": "High-fidelity palette that preserves source hues." }),
+        ({ "value": "scheme-fruit-salad", "label": "Fruit Salad", "description": "Colorful mix of bright contrasting accents." }),
+        ({ "value": "scheme-monochrome", "label": "Monochrome", "description": "Minimal palette built around a single hue." }),
+        ({ "value": "scheme-neutral", "label": "Neutral", "description": "Muted palette with subdued, calming tones." }),
+        ({ "value": "scheme-rainbow", "label": "Rainbow", "description": "Diverse palette spanning the full spectrum." })
+    ]
+
+    function getMatugenScheme(value) {
+        const schemes = availableMatugenSchemes
+        for (let i = 0; i < schemes.length; i++) {
+            if (schemes[i].value === value)
+                return schemes[i]
+        }
+        return schemes[0]
+    }
+
     property color primary: currentThemeData.primary
     property color primaryText: currentThemeData.primaryText
     property color primaryContainer: currentThemeData.primaryContainer
@@ -552,10 +572,11 @@ Singleton {
             if (!wallpaperPath) {
                 return
             }
+            const selectedMatugenType = (typeof SettingsData !== "undefined" && SettingsData.matugenScheme) ? SettingsData.matugenScheme : "scheme-tonal-spot"
             if (wallpaperPath.startsWith("#")) {
-                setDesiredTheme("hex", wallpaperPath, isLight, iconTheme)
+                setDesiredTheme("hex", wallpaperPath, isLight, iconTheme, selectedMatugenType)
             } else {
-                setDesiredTheme("image", wallpaperPath, isLight, iconTheme)
+                setDesiredTheme("image", wallpaperPath, isLight, iconTheme, selectedMatugenType)
             }
         } else {
             let primaryColor
@@ -684,10 +705,11 @@ Singleton {
             if (currentTheme === dynamic) {
                 if (wallpaperPath) {
                     Quickshell.execDetached(["rm", "-f", stateDir + "/matugen.key"])
+                    const selectedMatugenType = (typeof SettingsData !== "undefined" && SettingsData.matugenScheme) ? SettingsData.matugenScheme : "scheme-tonal-spot"
                     if (wallpaperPath.startsWith("#")) {
-                        setDesiredTheme("hex", wallpaperPath, isLight, iconTheme)
+                        setDesiredTheme("hex", wallpaperPath, isLight, iconTheme, selectedMatugenType)
                     } else {
-                        setDesiredTheme("image", wallpaperPath, isLight, iconTheme)
+                        setDesiredTheme("image", wallpaperPath, isLight, iconTheme, selectedMatugenType)
                     }
                 }
             } else {
@@ -734,7 +756,10 @@ Singleton {
 
     Process {
         id: matugenProcess
-        command: ["matugen", "image", wallpaperPath, "--json", "hex"]
+        command: {
+            const scheme = (typeof SettingsData !== "undefined" && SettingsData.matugenScheme) ? SettingsData.matugenScheme : "scheme-tonal-spot"
+            return ["matugen", "image", wallpaperPath, "--json", "hex", "-t", scheme]
+        }
 
         stdout: StdioCollector {
             id: matugenCollector
@@ -782,7 +807,10 @@ Singleton {
 
     Process {
         id: colorMatugenProcess
-        command: ["matugen", "color", "hex", wallpaperPath, "--json", "hex"]
+        command: {
+            const scheme = (typeof SettingsData !== "undefined" && SettingsData.matugenScheme) ? SettingsData.matugenScheme : "scheme-tonal-spot"
+            return ["matugen", "color", "hex", wallpaperPath, "--json", "hex", "-t", scheme]
+        }
 
         stdout: StdioCollector {
             id: colorMatugenCollector

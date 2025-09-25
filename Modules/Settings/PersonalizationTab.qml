@@ -889,6 +889,37 @@ Item {
                         }
                     }
 
+                    DankDropdown {
+                        id: personalizationMatugenPaletteDropdown
+                        width: parent.width
+                        text: "Matugen Palette"
+                        description: "Select the palette algorithm used for wallpaper-based colors"
+                        options: Theme.availableMatugenSchemes.map(function (option) { return option.label })
+                        currentValue: Theme.getMatugenScheme(SettingsData.matugenScheme).label
+                        enabled: Theme.matugenAvailable
+                        opacity: enabled ? 1 : 0.4
+                        onValueChanged: value => {
+                            for (var i = 0; i < Theme.availableMatugenSchemes.length; i++) {
+                                var option = Theme.availableMatugenSchemes[i]
+                                if (option.label === value) {
+                                    SettingsData.setMatugenScheme(option.value)
+                                    break
+                                }
+                            }
+                        }
+                    }
+
+                    StyledText {
+                        text: {
+                            var scheme = Theme.getMatugenScheme(SettingsData.matugenScheme)
+                            return scheme.description + " (" + scheme.value + ")"
+                        }
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.surfaceVariantText
+                        wrapMode: Text.WordWrap
+                        width: parent.width
+                    }
+
                     StyledText {
                         text: "matugen not detected - dynamic theming unavailable"
                         font.pixelSize: Theme.fontSizeSmall

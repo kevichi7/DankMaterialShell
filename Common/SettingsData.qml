@@ -15,6 +15,7 @@ Singleton {
     // Theme settings
     property string currentThemeName: "blue"
     property string customThemeFile: ""
+    property string matugenScheme: "scheme-tonal-spot"
     property real topBarTransparency: 0.75
     property real topBarWidgetTransparency: 0.85
     property real popupTransparency: 0.92
@@ -206,6 +207,7 @@ Singleton {
                     currentThemeName = settings.currentThemeName !== undefined ? settings.currentThemeName : "blue"
                 }
                 customThemeFile = settings.customThemeFile !== undefined ? settings.customThemeFile : ""
+                matugenScheme = settings.matugenScheme !== undefined ? settings.matugenScheme : "scheme-tonal-spot"
                 topBarTransparency = settings.topBarTransparency !== undefined ? (settings.topBarTransparency > 1 ? settings.topBarTransparency / 100 : settings.topBarTransparency) : 0.75
                 topBarWidgetTransparency = settings.topBarWidgetTransparency !== undefined ? (settings.topBarWidgetTransparency > 1 ? settings.topBarWidgetTransparency / 100 : settings.topBarWidgetTransparency) : 0.85
                 popupTransparency = settings.popupTransparency !== undefined ? (settings.popupTransparency > 1 ? settings.popupTransparency / 100 : settings.popupTransparency) : 0.92
@@ -344,6 +346,7 @@ Singleton {
         settingsFile.setText(JSON.stringify({
                                                 "currentThemeName": currentThemeName,
                                                 "customThemeFile": customThemeFile,
+                                                "matugenScheme": matugenScheme,
                                                 "topBarTransparency": topBarTransparency,
                                                 "topBarWidgetTransparency": topBarWidgetTransparency,
                                                 "popupTransparency": popupTransparency,
@@ -565,6 +568,22 @@ Singleton {
     function setCustomThemeFile(filePath) {
         customThemeFile = filePath
         saveSettings()
+    }
+
+    function setMatugenScheme(scheme) {
+        var normalized = scheme || "scheme-tonal-spot"
+        if (matugenScheme === normalized)
+            return
+
+        matugenScheme = normalized
+        saveSettings()
+
+        if (typeof Theme !== "undefined") {
+            if (Theme.currentTheme === Theme.dynamic) {
+                Theme.extractColors()
+            }
+            Theme.generateSystemThemesFromCurrentTheme()
+        }
     }
 
     function setTopBarTransparency(transparency) {

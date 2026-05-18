@@ -901,6 +901,16 @@ Singleton {
         wrapper.notification.dismiss();
     }
 
+    function invokeAction(action, beforeInvoke) {
+        if (!action || !action.invoke)
+            return;
+        if (beforeInvoke)
+            beforeInvoke();
+        Qt.callLater(() => {
+            action.invoke();
+        });
+    }
+
     function disablePopups(disable) {
         popupsDisabled = disable;
         if (disable) {

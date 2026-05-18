@@ -1039,10 +1039,10 @@ PanelWindow {
                             onEntered: parent.isHovered = true
                             onExited: parent.isHovered = false
                             onClicked: {
-                                if (modelData && modelData.invoke)
-                                    modelData.invoke();
-                                if (notificationData && !win.exiting)
-                                    notificationData.popup = false;
+                                NotificationService.invokeAction(modelData, () => {
+                                    if (notificationData && !win.exiting)
+                                        notificationData.popup = false;
+                                });
                             }
                         }
                     }
@@ -1116,8 +1116,10 @@ PanelWindow {
                         if (canExpand) {
                             win.descriptionExpanded = !win.descriptionExpanded;
                         } else if (notificationData.actions && notificationData.actions.length > 0) {
-                            notificationData.actions[0].invoke();
-                            NotificationService.dismissNotification(notificationData);
+                            NotificationService.invokeAction(notificationData.actions[0], () => {
+                                if (notificationData && !win.exiting)
+                                    notificationData.popup = false;
+                            });
                         } else {
                             notificationData.popup = false;
                         }

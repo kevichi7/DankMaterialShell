@@ -272,9 +272,10 @@ QtObject {
         if (actionIndex >= 0 && actionIndex < actions.length) {
             const action = actions[actionIndex];
             if (action.invoke) {
-                action.invoke();
-                if (onClose)
-                    onClose();
+                NotificationService.invokeAction(action, () => {
+                    if (onClose)
+                        onClose();
+                });
             }
         }
     }
